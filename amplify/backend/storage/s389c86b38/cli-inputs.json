@@ -1,0 +1,14 @@
+{
+  "resourceName": "s389c86b38",
+  "policyUUID": "89c86b38",
+  "bucketName": "roadbook3565b42d13d3403b9ddbbc9239d72307",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

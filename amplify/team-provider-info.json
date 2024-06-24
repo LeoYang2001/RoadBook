@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-roadbook-dev-a4919-authRole",
+      "UnauthRoleArn": "arn:aws:iam::767398082152:role/amplify-roadbook-dev-a4919-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::767398082152:role/amplify-roadbook-dev-a4919-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-roadbook-dev-a4919-deployment",
+      "UnauthRoleName": "amplify-roadbook-dev-a4919-unauthRole",
+      "StackName": "amplify-roadbook-dev-a4919",
+      "StackId": "arn:aws:cloudformation:us-east-2:767398082152:stack/amplify-roadbook-dev-a4919/cdd5cdf0-3248-11ef-8275-0aaea8c89d17",
+      "AmplifyAppId": "dz4vu2tg8omcw"
+    },
+    "categories": {
+      "auth": {
+        "roadbooke7ba0d76": {}
+      },
+      "storage": {
+        "s389c86b38": {}
+      }
+    }
+  }
+}
