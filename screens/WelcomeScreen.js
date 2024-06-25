@@ -1,14 +1,38 @@
-import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { Auth } from 'aws-amplify';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, ActivityIndicator } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
 const WelcomeScreen = ({ navigation }) => {
+
+  const [isLoading, setIsLoading] = useState(true)
+  const dispatch = useDispatch();
+  const counter = useSelector(state => state.counter);
+
+  useEffect(() => {
+    checkAuthState();
+  }, []);
+
+  const checkAuthState = async () => {
+    console.log('checking auth...')
+    try {
+      await Auth.currentAuthenticatedUser();
+      console.log('authenticated')
+      navigation.replace('DrawerScreen')
+    } catch (error) {
+      console.log('unauthenticated')
+      navigation.replace('SignIn')
+    }
+  };
+
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Welcome to Roadbook App!</Text>
-      <Button
-        title="Sign In / Sign Up"
-        onPress={() => navigation.navigate('SignIn')}
-      />
+      {
+        isLoading && (
+          <ActivityIndicator size={'large'} color={"blue"} />
+        )
+      }
     </View>
   );
 };

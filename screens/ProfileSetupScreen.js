@@ -7,9 +7,9 @@ const ProfileSetupScreen = ({ navigation }) => {
   const [name, setName] = useState('');
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [username, setUsername] = useState('')
 
   const handleChooseImage = async () => {
-   console.log('handleChooseImage...')
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -18,7 +18,8 @@ const ProfileSetupScreen = ({ navigation }) => {
         quality: 1,
       });
   
-      console.log(result);
+      const userInfo = await Auth.currentUserInfo();
+      setUsername(userInfo.username)
       if (!result.canceled) {
         setImage(result.assets[0].uri);
       }
@@ -37,7 +38,8 @@ const ProfileSetupScreen = ({ navigation }) => {
       try {
         const response = await fetch(image);
         const blob = await response.blob();
-        const fileName = `${Auth.currentUserInfo().username}-profile-pic.jpg`;
+        if(!username)  return alert('picture uploading error')
+        const fileName = `${username}-profile-pic.jpg`;
 
         const { key } = await Storage.put(fileName, blob, {
           contentType: 'image/jpeg',
@@ -56,10 +58,11 @@ const ProfileSetupScreen = ({ navigation }) => {
       const user = await Auth.currentAuthenticatedUser();
       await Auth.updateUserAttributes(user, {
         name,
-        picture: imageUrl,
+        picture: imageUrl.split('?')[0],
+        profile: 'true'
       });
     alert('successfully updated profile')
-      navigation.navigate('Main'); // Navigate to the main screen after profile setup
+      navigation.navigate('Main'); 
     } catch (error) {
       Alert.alert('Error', 'Failed to save profile');
       console.log('Error saving profile:', error);

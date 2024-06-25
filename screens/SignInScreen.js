@@ -9,7 +9,16 @@ const SignInScreen = ({ navigation }) => {
   const signIn = async () => {
     try {
       await Auth.signIn(username, password);
-      navigation.navigate('Main');
+      const userInfo = await Auth.currentAuthenticatedUser();
+      let ifProfileSetup = userInfo.attributes.profile
+      if(ifProfileSetup === "false")
+      {
+        navigation.replace('ProfileSetup');
+      }
+      else{
+        navigation.replace('DrawerScreen');
+
+      }
     } catch (error) {
       Alert.alert('Error', error.message);
     }

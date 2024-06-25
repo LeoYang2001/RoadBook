@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, Keyboard } from 'react-native';
+import { View, Text, TextInput, Button, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Auth } from 'aws-amplify';
 
 const SignUpScreen = ({ navigation }) => {
@@ -12,8 +12,8 @@ const SignUpScreen = ({ navigation }) => {
         username,
         password,
         attributes: {
-          email: username // Assuming username is the email
-          // Add additional attributes as needed
+          email: username,
+          profile:'false'
         }
       });
       console.log('Sign up response:', user);
@@ -21,7 +21,22 @@ const SignUpScreen = ({ navigation }) => {
       // Navigate to confirmation screen or handle confirmation flow
       navigation.navigate('ConfirmSignUp', { username });
     } catch (error) {
-      Alert.alert('Error', error.message);
+      if (error.code === 'UsernameExistsException') {
+        // User already exists, check if email is confirmed
+        try {
+          const user = await Auth.resendSignUp(username);
+          Alert.alert('User Already Exists', 'Please check your email for a verification link.');
+          navigation.navigate('ConfirmSignUp', { username });
+          // Handle the flow to navigate or notify user
+          // You may want to navigate to a different screen or show a message
+        } catch (resendError) {
+          console.log('Error resending confirmation code:', resendError);
+          Alert.alert('Error', resendError.message);
+        }
+      } else {
+        // Other errors during sign-up process
+        Alert.alert('Error', error.message);
+      }
     }
   };
 
