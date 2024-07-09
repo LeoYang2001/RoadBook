@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, Image, SafeAreaView, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Auth } from 'aws-amplify';
-import { pageLayout, themeColors } from '../contants';
+import { pageLayout, themeColors } from '../constant';
 import Filter from '../components/Filter';
 import RoadBook from '../components/RoadBook';
+import * as Haptics from 'expo-haptics';
 
 
 const MainScreen = ({navigation}) => {
@@ -50,6 +51,7 @@ const MainScreen = ({navigation}) => {
   };
 
   const createNewRoadBook = ()=>{
+    Haptics.selectionAsync()
     navigation.navigate('NewRoadBook')
   }
 

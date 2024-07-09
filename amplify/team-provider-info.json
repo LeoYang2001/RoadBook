@@ -12,11 +12,11 @@
       "AmplifyAppId": "dz4vu2tg8omcw"
     },
     "categories": {
-      "auth": {
-        "roadbooke7ba0d76": {}
-      },
       "storage": {
         "s389c86b38": {}
+      },
+      "auth": {
+        "roadbooka1e7e0bb": {}
       }
     }
   }

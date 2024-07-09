@@ -1,6 +1,7 @@
 {
+  "api": {},
   "auth": {
-    "roadbooke7ba0d76": {
+    "roadbooka1e7e0bb": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
@@ -17,8 +18,7 @@
         ],
         "socialProviders": [],
         "usernameAttributes": [
-          "EMAIL",
-          "PHONE_NUMBER"
+          "EMAIL"
         ],
         "verificationMechanisms": [
           "EMAIL"

@@ -1,10 +1,10 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "identityPoolName": "roadbooke7ba0d76_identitypool_e7ba0d76",
+    "identityPoolName": "roadbooka1e7e0bb_identitypool_a1e7e0bb",
     "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "roadboe7ba0d76",
-    "userPoolName": "roadbooke7ba0d76_userpool_e7ba0d76",
+    "resourceNameTruncated": "roadboa1e7e0bb",
+    "userPoolName": "roadbooka1e7e0bb_userpool_a1e7e0bb",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -31,14 +31,14 @@
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "roadboe7ba0d76_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "roadboa1e7e0bb_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "e7ba0d76",
-    "resourceName": "roadbooke7ba0d76",
+    "sharedId": "a1e7e0bb",
+    "resourceName": "roadbooka1e7e0bb",
     "authSelections": "identityPoolAndUserPool",
     "useDefault": "default",
     "usernameAttributes": [
-      "email, phone_number"
+      "email"
     ],
     "userPoolGroupList": [],
     "serviceName": "Cognito",

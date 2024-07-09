@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { ChevronRight } from 'lucide-react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 
 
 const Filter = ({selections, setSelectionId, selectionId}) => {
@@ -15,6 +16,7 @@ const Filter = ({selections, setSelectionId, selectionId}) => {
     const opacity = useSharedValue(0);
 
     const toggleFilter = () => {
+        Haptics.selectionAsync()
         setIsOpen(!isOpen);
         rotation.value = withTiming(isOpen ? 0 : 90, { duration: 300 });
         height.value = withTiming(isOpen ? 0 : filterHeight, { duration: 300 }); 

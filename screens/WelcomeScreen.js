@@ -1,14 +1,11 @@
 import { Auth } from 'aws-amplify';
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, ActivityIndicator } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { BAIDU_MAPS_APIKEY } from "@env"
 
 const WelcomeScreen = ({ navigation }) => {
 
   const [isLoading, setIsLoading] = useState(true)
 
-  console.log(BAIDU_MAPS_APIKEY)
 
   useEffect(() => {
     checkAuthState();

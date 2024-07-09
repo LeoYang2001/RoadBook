@@ -10,9 +10,11 @@ import SignUpScreen from './screens/SignUpScreen';
 import ConfirmSignUpScreen from './screens/ConfirmSignUpScreen';
 import ProfileSetupScreen from './screens/ProfileSetupScreen';
 import DrawerScreen from './screens/DrawerScreen';
-import { Provider } from 'react-redux';
-import store from './store';
 import NewRoadBook from './screens/NewRoadBook';
+import MapMainScreen from './screens/MapMainScreen';
+import SignInPassword from './screens/SignInPasswordScreen';
+import SignInMock from './screens/SignInMock';
+import RoadBookEditScreen from './screens/RoadBookEditScreen';
 
 Amplify.configure(awsconfig);
 
@@ -24,7 +26,6 @@ export default function App() {
 
  
   return (
-    <Provider store={store}>
          <NavigationContainer >
            <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="Welcome">
             <Stack.Screen name="Welcome" component={WelcomeScreen}/>
@@ -34,10 +35,14 @@ export default function App() {
             <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen}/>
             <Stack.Screen name="DrawerScreen" component={DrawerScreen}/>
             <Stack.Screen name="NewRoadBook" component={NewRoadBook}/>
+            <Stack.Screen name="MapMain" component={MapMainScreen}/>
+            <Stack.Screen name="SignInPassword" component={SignInPassword}/>
+            <Stack.Screen name="SignInMock" component={SignInMock}/>
+            <Stack.Screen name="RoadBookEdit" component={RoadBookEditScreen}/>
+            
             
             </Stack.Navigator>
       </NavigationContainer>
-    </Provider>
   );
 }
 
