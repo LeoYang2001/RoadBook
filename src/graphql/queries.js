@@ -7,9 +7,8 @@ export const getUser = /* GraphQL */ `
       id
       username
       email
-      phoneNumber
-      profile
       createdAt
+      roadBookList
       updatedAt
       __typename
     }
@@ -26,8 +25,39 @@ export const listUsers = /* GraphQL */ `
         id
         username
         email
-        phoneNumber
-        profile
+        createdAt
+        roadBookList
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getRoadBook = /* GraphQL */ `
+  query GetRoadBook($id: ID!) {
+    getRoadBook(id: $id) {
+      id
+      name
+      placesPlan
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listRoadBooks = /* GraphQL */ `
+  query ListRoadBooks(
+    $filter: ModelRoadBookFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listRoadBooks(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        placesPlan
         createdAt
         updatedAt
         __typename

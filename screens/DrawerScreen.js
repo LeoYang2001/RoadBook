@@ -4,6 +4,8 @@ import { DrawerContentScrollView, DrawerItem, DrawerItemList, createDrawerNaviga
 import MainScreen from './MainScreen';
 import { Auth } from 'aws-amplify';
 
+
+
 const DrawerScreen = ({navigation}) => {
 
 const Drawer = createDrawerNavigator();
@@ -18,6 +20,7 @@ const handleSignOut = async () => {
     }
   };
 
+ 
 
 const CustomDrawerContent = (props) => {
     
@@ -31,6 +34,7 @@ const CustomDrawerContent = (props) => {
         }}
         {...props}>
           <DrawerItemList {...props} />
+         
          
           <DrawerItem
           style={{borderWidth:1,

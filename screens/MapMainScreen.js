@@ -5,6 +5,11 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import PlacesSuggestionItem from '../components/PlacesSuggestionItem';
 import PlacesPlanList from '../components/PlacesPlanList';
 import MapComponent from '../components/MapComponent';
+import { API, Auth, graphqlOperation } from 'aws-amplify';
+import { createRoadBook, updateUser } from '../src/graphql/mutations';
+import * as queries from '../src/graphql/queries'
+
+import * as mutations from '../src/graphql/mutations';
 
 const BAIDU_MAPS_APIKEY = process.env.EXPO_PUBLIC_BAIDU_MAPS_APIKEY
 const BAIDU_PLACES_URL = process.env.EXPO_PUBLIC_BAIDU_PLACES_URL
@@ -23,6 +28,10 @@ const initializePlacesPlan = (tripDays)=>{
 
 
 const MapMainScreen = ({navigation, route}) => {
+
+
+
+
     const {location, city, tripDays,roadbookName} = route.params
 
     
@@ -35,6 +44,8 @@ const MapMainScreen = ({navigation, route}) => {
     const [curDay, setCurDay] = useState(1)
     const [placesPlan, setPlacesPlan] = useState(initializePlacesPlan(tripDays))
     const debounceTimeout = useRef(null)
+    const [userInfo, setUserInfo] = useState(null)
+    const [userInfoFromUserList, setUserInfoFromUserList] = useState(null)
 
     const height = useSharedValue(180);
     const headerMarginTop = useSharedValue(0);
@@ -43,6 +54,19 @@ const MapMainScreen = ({navigation, route}) => {
 
 
 
+    useEffect(() => {
+        fetchUser();
+      }, []);
+    
+      const fetchUser = async () => {
+        try {
+          const userInfo = await Auth.currentAuthenticatedUser();
+          setUserInfo(userInfo);
+            fetchUserInfoFromUserList(userInfo.attributes.sub)
+        } catch (error) {
+          console.log('Error fetching user:', error);
+        }
+      };
     
 
     useEffect(() => {
@@ -171,18 +195,70 @@ const MapMainScreen = ({navigation, route}) => {
 
         debounceTimeout.current = setTimeout(()=>{
             fetchSuggestions(text)
-        },300)
+        },200)
         
       };
-    
-     const handleCreatingRoadBook = ()=>{
-        
-        
 
-        navigation.navigate('RoadBookEdit', {
-            placesPlan: placesPlan,
-            roadbookName:roadbookName
+      const fetchUserInfoFromUserList = async (uid) => {
+        const user = await API.graphql({
+          query: queries.getUser,
+          variables:{
+            id:uid
+          }
         })
+        setUserInfoFromUserList(user)
+      }
+    
+    
+     const handleCreatingRoadBook = async ()=>{
+        
+        //create roadBook with user id and check if the roadbook name exists in user's roadbooklist
+        let userId = userInfo.attributes.sub
+        try {
+            if(!userId)    return alert('userinfo error')
+            // 1. Create RoadBook
+                const roadBookInput = {
+                name: roadbookName,
+                placesPlan: JSON.stringify(placesPlan),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                };
+                const createRoadBookResponse = await API.graphql(graphqlOperation(createRoadBook, {input: roadBookInput}));
+                let roadBook_id = createRoadBookResponse.data.createRoadBook.id
+                let roadBookItem = createRoadBookResponse.data.createRoadBook
+
+                let roadBookItemParsed = {
+                    ...roadBookItem,
+                    placesPlan:JSON.parse(roadBookItem.placesPlan)
+                }
+                // insert roadBook_id to user (roadBookList) in userList
+                // user.data?.getUser?.roadBookList
+                const oldUserInfo = userInfoFromUserList?.data?.getUser
+                const updateUserDetail = {
+                    id: oldUserInfo?.id,
+                    username: oldUserInfo?.username,
+                    email: oldUserInfo?.email,
+                    createdAt: oldUserInfo?.createdAt,
+                    roadBookList: [...oldUserInfo?.roadBookList,roadBook_id]
+                  };
+
+                 await API.graphql({
+                    query: mutations.updateUser,
+                    variables: { input: updateUserDetail }
+                  });
+
+                  console.log('update successfully')
+
+                    navigation.replace('RoadBookEdit', {
+                       roadBookItem:roadBookItemParsed
+                    })
+
+        } catch (error) {
+            console.error('Error creating RoadBook:', error);
+            Alert.alert('Error', 'Failed to create RoadBook. Please try again later.');
+        }
+
+       
      }
 
   return (

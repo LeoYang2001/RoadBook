@@ -3,7 +3,9 @@ import { View, Text, TextInput, Button, Alert, TouchableWithoutFeedback, Keyboar
 import { Auth } from 'aws-amplify';
 import { themeColors } from '../constant';
 
+
 const SignInPassword = ({ navigation, route}) => {
+
 
     const {email} = route.params
 
@@ -23,6 +25,9 @@ const SignInPassword = ({ navigation, route}) => {
             }
           });
           console.log('Sign up response:', user);
+
+
+
           Alert.alert('Sign Up Successful', 'Please check your email for verification.');
           // Navigate to confirmation screen or handle confirmation flow
           setIsLoading(false)

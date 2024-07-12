@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import MapWindow from './MapWindow'
+import CustomMarker from './CustomMarker'
 
 
 const MapComponent = ({placesPlan, curDay, location}) => {
@@ -31,7 +32,7 @@ const MapComponent = ({placesPlan, curDay, location}) => {
 
   return (
     <>
-        <MapWindow location={location} placesWithGeometry={placesWithGeometry} />
+        <MapWindow CustomMarker={CustomMarker} location={location} placesWithGeometry={placesWithGeometry} ifDirections={false} />
     </>
   )
 }

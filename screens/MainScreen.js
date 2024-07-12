@@ -1,50 +1,139 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, Image, SafeAreaView, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Auth } from 'aws-amplify';
+import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { pageLayout, themeColors } from '../constant';
 import Filter from '../components/Filter';
 import RoadBook from '../components/RoadBook';
 import * as Haptics from 'expo-haptics';
+import { getRoadBook, getUser } from '../src/graphql/queries';
+import * as subscriptions from '../src/graphql/subscriptions';
+import { deleteRoadBook, updateUser } from '../src/graphql/mutations';
+
+const selections = [
+  {
+      id:1,
+      name:'初来乍到'
+  },
+  {
+      id:2,
+      name:'心愿'
+  },
+  {
+      id:3,
+      name:'完成'
+  },
+  {
+      id:4,
+      name:'管理我的夹子'
+  }
+]
+
 
 
 const MainScreen = ({navigation}) => {
   const [user, setUser] = useState(null);
   const [selectionId, setSelectionId] = useState(1)
+  const [roadBookList, setRoadBookList] = useState([])
 
-  const selections = [
-    {
-        id:1,
-        name:'初来乍到'
-    },
-    {
-        id:2,
-        name:'心愿'
-    },
-    {
-        id:3,
-        name:'完成'
-    },
-    {
-        id:4,
-        name:'管理我的夹子'
-    }
-]
+
+
+
 
   useEffect(() => {
-    fetchUser();
+    fetchRoadBookList()
   }, []);
 
-  const fetchUser = async () => {
-    try {
-      const userInfo = await Auth.currentAuthenticatedUser();
-      setUser(userInfo);
-      if (!userInfo.attributes.name || !userInfo.attributes.picture) {
-        navigation.navigate('ProfileSetup');
-      }
-    } catch (error) {
-      console.log('Error fetching user:', error);
+  useEffect(() => {
+    const updateRoadBookList = API.graphql({query: subscriptions.onUpdateUser}).subscribe({
+      next:({provider, value}) => {
+        // console.log({provider, value})
+        console.log('user updated')
+        const roadBookListIds = value.data.onUpdateUser.roadBookList
+        fetchRoadBookListByIds(roadBookListIds)
+      },
+      error: (error) => console.warn(error)
+    })
+    return () => {
+      if (updateRoadBookList) updateRoadBookList.unsubscribe();
     }
-  };
+  }, [])
+  
+
+  const fetchRoadBookListByIds = async (userRoadBookList)=>{
+     // Step 3: Fetch the RoadBooks using the roadBook_id list
+     const roadBookPromises = userRoadBookList.map(roadBookId => 
+      API.graphql(graphqlOperation(getRoadBook, { id: roadBookId }))
+    );
+
+    const roadBooksResponses = await Promise.all(roadBookPromises);
+    const roadBooks = roadBooksResponses.map(response => {
+      const jsObject = response.data.getRoadBook
+      return {
+        ...jsObject,
+        placesPlan: JSON.parse(jsObject.placesPlan)
+      }
+    });
+    setRoadBookList(roadBooks.reverse())
+  }
+
+
+  const fetchRoadBookList = async ()=>{
+      try {
+
+         // Step 1: Get the current authenticated user's information
+
+        const userInfo = await Auth.currentAuthenticatedUser();
+        if(!userInfo)
+        {
+          throw new Error('User not authenticated')
+        }
+        setUser(userInfo)
+        const userId = userInfo.attributes.sub
+
+         // Step 2: Fetch the user's roadBookList
+
+        const userResponse = await API.graphql(graphqlOperation(getUser, {id : userId}))
+        const userRoadBookList = userResponse.data.getUser.roadBookList
+
+        if (!userRoadBookList || userRoadBookList.length === 0) {
+          return []; // Return an empty array if the user has no roadbooks
+        }
+
+       await fetchRoadBookListByIds(userRoadBookList)
+
+      } catch (error) {
+        console.error('Error fetching RoadBook list:', error);
+        throw new Error('Failed to fetch RoadBook list');
+      }
+  }
+
+ 
+  const handleRoadBookEdit = (roadBookItem) => {
+    navigation.navigate('RoadBookEdit', {
+      roadBookItem:roadBookItem
+  })
+  }
+
+  const handleRoadBookDelete = async(roadBookItem) => {
+    let userId = user.attributes.sub
+    let roadBookIdToDelete = roadBookItem.id
+    try {
+      // Step 1: Update User's roadBookList by removing the deletedId
+      const updatedUser = await API.graphql(graphqlOperation(getUser, { id: userId }));
+      const updatedRoadBookList = updatedUser.data.getUser.roadBookList.filter(id => id !== roadBookIdToDelete);
+
+      await API.graphql(graphqlOperation(updateUser, { input: { id: userId, roadBookList: updatedRoadBookList } }));
+
+       // Step 2: Delete RoadBook from roadBookList table
+      await API.graphql(graphqlOperation(deleteRoadBook, { input: { id: roadBookIdToDelete } }));
+
+      console.log(`RoadBook ${roadBookIdToDelete} deleted successfully.`);
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
 
   const openDrawer = () => {
     navigation.openDrawer();
@@ -62,7 +151,7 @@ const MainScreen = ({navigation}) => {
 
   return (
     <SafeAreaView style={{backgroundColor:themeColors.backgroundColor}} className="flex-1" >
-      <View style={{paddingHorizontal:pageLayout.paddingHorizontal, paddingVertical: pageLayout.paddingVertical}} className=" flex-1  flex-col  ">
+      <View style={{paddingHorizontal:pageLayout.paddingHorizontal, paddingTop: pageLayout.paddingVertical}} className=" flex-1  flex-col  ">
          <View className="  flex flex-row items-center">
             <TouchableOpacity onPress={openDrawer}>
               <Image
@@ -125,10 +214,13 @@ const MainScreen = ({navigation}) => {
          <View className="z-20">
          <Filter setSelectionId={setSelectionId} selectionId={selectionId} selections={selections}/>
          </View>
-         <View className="flex-1  pt-4 overflow-hidden ">
-          <ScrollView  className=" overflow-visible">
-            <RoadBook/>
-            <RoadBook/>
+         <View className="flex-1  pt-4 overflow-hidden  ">
+          <ScrollView showsVerticalScrollIndicator={false}  className=" overflow-visible">
+            {
+              roadBookList.map((roadBookItem) => (
+                <RoadBook handleRoadBookDelete={handleRoadBookDelete} handleRoadBookEdit={handleRoadBookEdit} key={roadBookItem.id} roadBookItem={roadBookItem} />
+              ))
+            }
           </ScrollView>
          </View>
       </View>

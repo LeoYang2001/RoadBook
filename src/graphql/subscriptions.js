@@ -7,9 +7,8 @@ export const onCreateUser = /* GraphQL */ `
       id
       username
       email
-      phoneNumber
-      profile
       createdAt
+      roadBookList
       updatedAt
       __typename
     }
@@ -21,9 +20,8 @@ export const onUpdateUser = /* GraphQL */ `
       id
       username
       email
-      phoneNumber
-      profile
       createdAt
+      roadBookList
       updatedAt
       __typename
     }
@@ -35,8 +33,43 @@ export const onDeleteUser = /* GraphQL */ `
       id
       username
       email
-      phoneNumber
-      profile
+      createdAt
+      roadBookList
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onCreateRoadBook = /* GraphQL */ `
+  subscription OnCreateRoadBook($filter: ModelSubscriptionRoadBookFilterInput) {
+    onCreateRoadBook(filter: $filter) {
+      id
+      name
+      placesPlan
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateRoadBook = /* GraphQL */ `
+  subscription OnUpdateRoadBook($filter: ModelSubscriptionRoadBookFilterInput) {
+    onUpdateRoadBook(filter: $filter) {
+      id
+      name
+      placesPlan
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteRoadBook = /* GraphQL */ `
+  subscription OnDeleteRoadBook($filter: ModelSubscriptionRoadBookFilterInput) {
+    onDeleteRoadBook(filter: $filter) {
+      id
+      name
+      placesPlan
       createdAt
       updatedAt
       __typename

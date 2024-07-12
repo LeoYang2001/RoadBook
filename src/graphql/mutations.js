@@ -10,9 +10,8 @@ export const createUser = /* GraphQL */ `
       id
       username
       email
-      phoneNumber
-      profile
       createdAt
+      roadBookList
       updatedAt
       __typename
     }
@@ -27,9 +26,8 @@ export const updateUser = /* GraphQL */ `
       id
       username
       email
-      phoneNumber
-      profile
       createdAt
+      roadBookList
       updatedAt
       __typename
     }
@@ -44,8 +42,52 @@ export const deleteUser = /* GraphQL */ `
       id
       username
       email
-      phoneNumber
-      profile
+      createdAt
+      roadBookList
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const createRoadBook = /* GraphQL */ `
+  mutation CreateRoadBook(
+    $input: CreateRoadBookInput!
+    $condition: ModelRoadBookConditionInput
+  ) {
+    createRoadBook(input: $input, condition: $condition) {
+      id
+      name
+      placesPlan
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateRoadBook = /* GraphQL */ `
+  mutation UpdateRoadBook(
+    $input: UpdateRoadBookInput!
+    $condition: ModelRoadBookConditionInput
+  ) {
+    updateRoadBook(input: $input, condition: $condition) {
+      id
+      name
+      placesPlan
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteRoadBook = /* GraphQL */ `
+  mutation DeleteRoadBook(
+    $input: DeleteRoadBookInput!
+    $condition: ModelRoadBookConditionInput
+  ) {
+    deleteRoadBook(input: $input, condition: $condition) {
+      id
+      name
+      placesPlan
       createdAt
       updatedAt
       __typename

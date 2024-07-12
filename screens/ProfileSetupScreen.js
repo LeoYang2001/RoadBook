@@ -1,13 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, Image, Alert } from 'react-native';
 import { Auth, Storage } from 'aws-amplify';
 import * as ImagePicker from 'expo-image-picker';
+import { createUser } from '../src/graphql/mutations'; 
+import { API, graphqlOperation } from 'aws-amplify';
 
 const ProfileSetupScreen = ({ navigation }) => {
   const [name, setName] = useState('');
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [username, setUsername] = useState('')
+  const [userInfo, setUserInfo] = useState(null)
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+
+  const fetchUser = async () => {
+    try {
+      const userInfo = await Auth.currentAuthenticatedUser();
+      setUserInfo(userInfo);
+    } catch (error) {
+      console.log('Error fetching user:', error);
+    }
+  };
 
   const handleChooseImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -62,6 +79,26 @@ const ProfileSetupScreen = ({ navigation }) => {
         profile: 'true'
       });
     alert('successfully updated profile')
+
+    
+    if(user)
+    {
+      // if signed up successfully, add user into userlist
+      const userDetails = {
+        id: userInfo.attributes.sub,
+        username: name,
+        email: userInfo.attributes.email,
+        createdAt: new Date().toISOString(),
+        roadBookList: []
+      };
+      try {
+        await API.graphql(graphqlOperation(createUser, { input: userDetails }));
+        console.log('user created successfully')
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
       navigation.replace('DrawerScreen'); 
     } catch (error) {
       Alert.alert('Error', 'Failed to save profile');
