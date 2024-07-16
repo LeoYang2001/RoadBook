@@ -22,6 +22,7 @@ const MapWindow = ({ placesWithGeometry, location, ifDirections, CustomMarker })
     const destination = placesWithGeometry[placesWithGeometry.length - 1]?.location;
     const waypoints = markerPoints.length > 2 ? markerPoints.slice(1, -1) : [];
 
+
     useEffect(() => {
         if (!origin || !destination) return;
 
@@ -106,7 +107,7 @@ const MapWindow = ({ placesWithGeometry, location, ifDirections, CustomMarker })
                 }}
                 onPress={handleMapPress}
             >
-                {directions.length > 0 && (
+                {placesWithGeometry.length > 1 && (
                     <Polyline
                         coordinates={directions}
                         strokeWidth={4}

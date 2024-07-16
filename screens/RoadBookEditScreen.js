@@ -11,7 +11,7 @@ import PlacesDetailEdit from '../components/PlacesDetailEdit'
 import PlacesDetailEditMode from '../components/PlacesDetailEditMode'
 
 
-const editModeSnapPoints = [330, 600]
+const editModeSnapPoints = [330, 730]
 const notEditModeSnapPoints = [330]
 
 const RoadBookEditScreen = ({navigation, route}) => {
@@ -21,6 +21,7 @@ const RoadBookEditScreen = ({navigation, route}) => {
     const [contentHeight, setContentHeight] = useState(330)
     const [snapPoints, setSnapPoints] = useState(notEditModeSnapPoints)
     const [ifEditMode, setIfEditMode] = useState(false)
+    const [ifKeyBoard, setIfKeyBoard] = useState(false)
     const [curDay, setCurDay] = useState(1)
     const [placesList, setPlacesList] = useState(roadBookItem.placesPlan[`day${curDay}`])
 
@@ -51,6 +52,18 @@ const RoadBookEditScreen = ({navigation, route}) => {
     const handleSheetChanges = useCallback((index) => {
         setContentHeight(editModeSnapPoints[index])
     },[])
+
+    useEffect(() => {
+        if(ifKeyBoard)
+        {
+            setSnapPoints(notEditModeSnapPoints)
+        }
+        else{
+            setSnapPoints(editModeSnapPoints)
+            handleSnapPress(0)
+        }
+    }, [ifKeyBoard])
+    
 
     const handleEditMode = (ifEditMode)=>{
         handleSnapPress(0)
@@ -108,6 +121,7 @@ const RoadBookEditScreen = ({navigation, route}) => {
                                  onPress={()=>{
                                     handleEditMode(false)
                                     Haptics.selectionAsync()
+                                    setIfKeyBoard(false)
                                 }}
                                 >
                                     <Text
@@ -178,6 +192,7 @@ const RoadBookEditScreen = ({navigation, route}) => {
                                     curDay={curDay}
                                     setCurDay={setCurDay}
                                     placesList={placesList}
+                                    setIfKeyBoard={setIfKeyBoard}
                                 />
                     ) : (
                         <PlacesDetailEdit
@@ -189,9 +204,10 @@ const RoadBookEditScreen = ({navigation, route}) => {
                     />
                     )
                 }
-            
+                
             </BottomSheetModal>
         </View>
+        
         </BottomSheetModalProvider>
     )
 }

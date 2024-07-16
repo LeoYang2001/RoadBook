@@ -19,6 +19,8 @@ import "react-native-gesture-handler";
 import awsconfig from './src/aws-exports';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheetDemo from './screens/BottomSheetDemo';
+import MapMainScreenClone from './screens/MapMainScreenClone';
+import DragAndSort from './screens/DragAndSort';
 
 
 
@@ -37,7 +39,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
          <NavigationContainer >
-           <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="Welcome">
+           <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="MapMainClone">
               <Stack.Screen name="Welcome" component={WelcomeScreen}/>
               <Stack.Screen name="SignIn" component={SignInScreen}/>
               <Stack.Screen name="SignUp" component={SignUpScreen}/>
@@ -49,7 +51,8 @@ export default function App() {
               <Stack.Screen name="SignInPassword" component={SignInPassword}/>
               <Stack.Screen name="SignInMock" component={SignInMock}/>
               <Stack.Screen name="RoadBookEdit" component={RoadBookEditScreen}/>
-              <Stack.Screen name="BottomSheet" component={BottomSheetDemo}/>
+              <Stack.Screen name="MapMainClone" component={MapMainScreenClone}/>
+              <Stack.Screen name="DragAndSort" component={DragAndSort}/>
             </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

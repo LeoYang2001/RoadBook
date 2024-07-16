@@ -12,7 +12,13 @@ const PlacesDetailEdit = ({
     placesList
 }) => {
 
-
+  console.log({
+    contentHeight,
+    roadBookItem,
+    curDay,
+    setCurDay,
+    placesList
+})
     
   return (
     <View style={{height: contentHeight, gap:12}} className="bg-white  pt-5 pb-9 px-4 flex-col  ">

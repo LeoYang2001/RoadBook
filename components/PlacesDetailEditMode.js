@@ -2,14 +2,16 @@ import React, { useEffect, useRef, useState } from 'react'
 import DaysFilter from './DaysFilter'
 import { View, Text, Image, TouchableOpacity, Pressable, ScrollView, TextInput } from 'react-native'
 import { MapPin } from 'lucide-react-native'
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet'
+import KeyBoardToolBar from './KeyBoardToolBar'
 
 
 
 
-const PlaceEditModeItem = ({place, index, placesList, editHighlightId, setEditHighlightId}) => {
+
+const PlaceEditModeItem = ({place, index, placesList, editHighlightId, setEditHighlightId ,setIfKeyBoard, editMode, setEditMode}) => {
     const ifEdit = editHighlightId === index + 1
 
-    const [editMode, setEditMode] = useState('ready')
     const [inputMode, setInputMode] = useState('note')
     const [note, setNote] = useState('')
 
@@ -96,24 +98,52 @@ const PlaceEditModeItem = ({place, index, placesList, editHighlightId, setEditHi
                                             }
                                             {/* display when editMode is editing  */}
                                             {
-                                                (ifEdit && editMode === 'editing') && (
+                                                ((ifEdit && editMode === 'editing') || note) && (
                                                     <View
                                                     className="px-2 flex-row items-center my-2"
                                                     style={{
-                                                        backgroundColor:'#FA541C10',
+                                                        backgroundColor:editMode === 'ready' ? '#F1F4FF90':'#FFF8F6',
                                                         height:36,
                                                         borderRadius:2
                                                     }}
                                                 >
-                                                <Image  
+                                                {
+                                                    editMode === "ready" ? (
+                                                        <Image  
+                                                    className="mr-2"
+                                                style={{
+                                                    width:20,
+                                                    height:20
+                                                }} source={require('./../assets/quote-disabled.png')} />
+                                                    ):(
+                                                        <Image  
                                                     className="mr-2"
                                                 style={{
                                                     width:20,
                                                     height:20
                                                 }} source={require('./../assets/quote.png')} />
-                                                <TextInput 
-                                                    className="border flex-1 h-full"
+                                                    )
+                                                }
+                                                <BottomSheetTextInput 
+                                                    editable={editMode !== 'ready'}
+                                                    style={{
+                                                        flex:1,
+                                                        height:'100%',
+                                                        color:'#7C8697',
+                                                        fontSize:12
+                                                    }}
+                                                    value={note}
                                                     ref={noteInputRef}
+                                                    onChangeText={(text)=>{
+                                                        setNote(text)
+                                                    }}
+                                                    onFocus={()=>{
+                                                        setIfKeyBoard(true)
+                                                    }}
+                                                    onBlur={()=>{
+                                                        setIfKeyBoard(false)
+                                                        setEditMode('ready')
+                                                    }}
                                                 />
                                             </View>
                                                 )
@@ -129,47 +159,14 @@ const PlaceEditModeItem = ({place, index, placesList, editHighlightId, setEditHi
                                         className=" mt-2" style={{fontSize:14, color:'#7C8697'}}>{place.detailed_name}</Text>
                                         </View>
                                    </View>
+               
                                 </View>
+                               
                         </>
                         </View>
     )
 }
 
-const PlaceEditItem = ({place, index, placesList}) => {
-    return (
-        <View
-                key={place.place_id}
-                    className="relative flex-row items-center "
-                    >
-                        <>
-                            <TouchableOpacity
-                            style={{
-                                paddingHorizontal: 14
-                            }} className=" flex-1 flex-col items-start ">
-                                   <View className="  flex-row flex justify-start  flex-1">
-                                        <View style={{borderWidth:2, width:14, height:14, borderColor:'#FA541C', borderRadius:14, marginRight:12, marginTop:4}}/>
-                                        <Text className="font-semibold" style={{fontSize:18, color:'#38404D'}}>{place.main_text}</Text>
-                                   </View>
-                                   <View style={{
-                                    marginLeft: 7,
-                                    borderLeftWidth: index === placesList.length - 1 ? 0 : 1 ,
-                                    paddingLeft:20,
-                                    borderColor:'#E4E8EF'
-                                   }} className=" flex-row items-center  w-full  py-4  ">
-                                        <MapPin size={16} color={'#7C8697'} style={{
-                                            marginTop:5,
-                                            marginRight:2
-                                        }}  />
-                                        <Text 
-                                        numberOfLines={1}
-                                        ellipsizeMode="tail"
-                                        className=" mt-2" style={{fontSize:14, color:'#7C8697'}}>{place.detailed_name}</Text>
-                                   </View>
-                                </TouchableOpacity>
-                        </>
-                        </View>
-    )
-}
 
 
 const PlacesDetailEditMode = ({
@@ -177,10 +174,13 @@ const PlacesDetailEditMode = ({
     roadBookItem,
     curDay,
     setCurDay,
-    placesList
+    placesList,
+    setIfKeyBoard,
+    
 }) => {
 
     const [editHighlightId, setEditHighlightId] = useState(1)
+    const [editMode, setEditMode] = useState('ready')
 
     useEffect(() => {
       setEditHighlightId(1)
@@ -188,7 +188,8 @@ const PlacesDetailEditMode = ({
     
     
   return (
-    <View style={{height: contentHeight, gap:12}} className="bg-white  pt-5 pb-9 px-4 flex-col  ">
+    <View style={{height: contentHeight, gap:12}} className="bg-white  pt-5  pb-9  flex-col  ">
+                <View style={{gap:12}} className="flex-1 px-4  flex-col ">
                 <DaysFilter placesPlan={roadBookItem.placesPlan} curDay={curDay} setCurDay={setCurDay} incrementTripDays={()=>{}} ifFinishedEditing={true} />
                  <View className="flex-1 ">
                     {
@@ -203,13 +204,23 @@ const PlacesDetailEditMode = ({
                         placesList={placesList}
                         editHighlightId={editHighlightId}
                         setEditHighlightId={setEditHighlightId}
+                        setIfKeyBoard={setIfKeyBoard}
+                        editMode={editMode}
+                        setEditMode={setEditMode}
                     />
                 ))
                 }
                     </ScrollView>
                       )
                     }
+                  
                  </View>
+                </View>
+                {
+                    editMode === 'editing' && (
+                        <KeyBoardToolBar />
+                    )
+                }
             </View>
   )
 }
