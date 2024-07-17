@@ -1,8 +1,8 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack';
-import { Amplify} from 'aws-amplify';
+import { Amplify, API, graphqlOperation} from 'aws-amplify';
 import WelcomeScreen from './screens/WelcomeScreen';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
@@ -18,9 +18,8 @@ import "react-native-gesture-handler";
 
 import awsconfig from './src/aws-exports';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheetDemo from './screens/BottomSheetDemo';
-import MapMainScreenClone from './screens/MapMainScreenClone';
-import DragAndSort from './screens/DragAndSort';
+import SlidingModal from './components/SlidingModal';
+import AiCreationScreen from './screens/AiCreationScreen';
 
 
 
@@ -34,12 +33,11 @@ const Stack = createStackNavigator();
 
 export default function App() {
 
-
  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
          <NavigationContainer >
-           <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="MapMainClone">
+           <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="AiCreation">
               <Stack.Screen name="Welcome" component={WelcomeScreen}/>
               <Stack.Screen name="SignIn" component={SignInScreen}/>
               <Stack.Screen name="SignUp" component={SignUpScreen}/>
@@ -51,8 +49,8 @@ export default function App() {
               <Stack.Screen name="SignInPassword" component={SignInPassword}/>
               <Stack.Screen name="SignInMock" component={SignInMock}/>
               <Stack.Screen name="RoadBookEdit" component={RoadBookEditScreen}/>
-              <Stack.Screen name="MapMainClone" component={MapMainScreenClone}/>
-              <Stack.Screen name="DragAndSort" component={DragAndSort}/>
+              <Stack.Screen name="slidingModal" component={SlidingModal}/>
+              <Stack.Screen name="AiCreation" component={AiCreationScreen}/>
             </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

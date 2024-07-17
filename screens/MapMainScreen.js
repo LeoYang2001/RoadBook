@@ -1,6 +1,6 @@
-import { View, Text, TouchableWithoutFeedback, Keyboard, TextInput, ScrollView, TouchableOpacity, Pressable } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
-import { Search } from 'lucide-react-native'
+import { View, Text, TouchableWithoutFeedback, Keyboard, TextInput, ScrollView, TouchableOpacity, Pressable, StyleSheet, Button } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronLeft, CircleCheck, Search } from 'lucide-react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import PlacesSuggestionItem from '../components/PlacesSuggestionItem';
 import PlacesPlanList from '../components/PlacesPlanList';
@@ -8,8 +8,15 @@ import MapComponent from '../components/MapComponent';
 import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { createRoadBook, updateUser } from '../src/graphql/mutations';
 import * as queries from '../src/graphql/queries'
-
+import {
+    BottomSheetModal,
+    BottomSheetView,
+    BottomSheetModalProvider,
+  } from '@gorhom/bottom-sheet';
 import * as mutations from '../src/graphql/mutations';
+import PlacesInputTab from '../components/PlacesInputTab';
+import { countPlanDays, hasNonEmptyArray } from '../utility';
+import SlidingModal from '../components/SlidingModal';
 
 const BAIDU_MAPS_APIKEY = process.env.EXPO_PUBLIC_BAIDU_MAPS_APIKEY
 const BAIDU_PLACES_URL = process.env.EXPO_PUBLIC_BAIDU_PLACES_URL
@@ -27,31 +34,123 @@ const initializePlacesPlan = (tripDays)=>{
 
 
 
+
 const MapMainScreen = ({navigation, route}) => {
 
 
 
 
-    const {location, city, tripDays,roadbookName} = route.params
+    // const {location, city, tripDays,roadbookName} = {
+    //    city: "北京市",
+    //     location: {"lat": 39.910924, "lng": 116.413387},
+    //     roadbookName: "第一份路书",
+    //     tripDays: 3
+    // }
+        //INITIALIZE ROADBOOK
+        const [location, setLocation] = useState(null)
+        const [city, setCity] = useState(null)
+        const [roadbookName, setRoadbookName] = useState('')
+        const [placesPlan, setPlacesPlan] = useState(initializePlacesPlan(3))
+        const [roadBookId, setRoadBookId] = useState(null)
+
+    useEffect(() => {
+        const {location, city, tripDays,roadbookName, id, placesPlan} = route.params
+        console.log({location, city, tripDays,roadbookName, id})
+        setLocation(location)
+        setCity(city)
+        setRoadbookName(roadbookName)
+
+        //Check if its a new roadbook or its a roadbook review
+        if(id)
+        {
+            setPlacesPlan(placesPlan)
+            setRoadBookId(id)
+            handleHideHeader()
+        }
+        else{
+            setPlacesPlan(initializePlacesPlan(tripDays))
+        }
+      
+    }, [navigation])
+    
+
 
     
+
+    //STATES
     const [inputText, setInputText] = useState("")
     const [isFocused, setIsFocused] = useState(false);
     const inputRef = useRef(null)
     const [suggestions, setSuggestions] = useState([])
-    const [ifAddingNewPlace, setIfAddingNewPlace] = useState(true)
-    const [ifFirstEnter, setIfFirstEnter] = useState(true)
     const [curDay, setCurDay] = useState(1)
-    const [placesPlan, setPlacesPlan] = useState(initializePlacesPlan(tripDays))
     const debounceTimeout = useRef(null)
     const [userInfo, setUserInfo] = useState(null)
     const [userInfoFromUserList, setUserInfoFromUserList] = useState(null)
-
-    const height = useSharedValue(180);
+    //editMode: 1.locEdit, 2.detailEdit
+    const [editMode, setEditMode] = useState('locEdit')
+    const [ifHeaderShown, setIfHeaderShown] = useState(true)
+    const [snapPoints, setSnapPoints] = useState([130,253, 710])
+    const [contentHeight, setContentHeight] = useState(185)
     const headerMarginTop = useSharedValue(0);
-    const bottomListMarginBottom = useSharedValue(-240 - (placesPlan[`day${curDay}`].length) * 72);
+    //viewMode: 1.title, 2.list
+    const [viewMode, setViewMode] = useState('list')
+    const [ifDraging, setIfDraging] = useState(false)
+    const [modalVisible, setModalVisible] = useState(false)
 
 
+    useEffect(() => {
+        headerMarginTop.value = withTiming(ifHeaderShown ? 0 : -178, {duration : 200})
+    }, [ifHeaderShown])
+
+    useEffect(() => {
+      if(editMode === 'detailEdit')
+      {
+        bottomSheetModalRef.current?.snapToIndex(2);
+      }
+      else{
+        bottomSheetModalRef.current?.snapToIndex(1);
+      }
+
+    }, [editMode])
+    
+
+    useEffect(() => {
+        
+        //base height = 223 - 58 = 165
+        //contentHeight = 165 + 58 * curDayplaces.length
+        //snapPoint = contentHeight + 30
+        let newSnapPoints = [...snapPoints]
+        let curDayPlaces = placesPlan[`day${curDay}`]
+        let newContentHeight = 165 + 58*curDayPlaces.length + 30
+        if(curDayPlaces.length > 4)    return
+        setContentHeight(newContentHeight)
+        newSnapPoints[1] = newContentHeight
+        setSnapPoints(newSnapPoints)
+        countPlanDays(placesPlan)
+      
+    }, [placesPlan,curDay])
+    
+
+    
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            marginTop: headerMarginTop.value,
+        };
+      });
+
+    //show header and hide placesList modal
+    const handleShowHeader = () => {
+        setIfHeaderShown(true)
+        inputRef.current.focus()
+        handleDismissModalPress()
+    }
+
+    //hide header and show placesList modal
+    const handleHideHeader = () => {
+        setIfHeaderShown(false)
+        handlePresentModalPress()
+    }
+    
 
 
     useEffect(() => {
@@ -69,9 +168,6 @@ const MapMainScreen = ({navigation, route}) => {
       };
     
 
-    useEffect(() => {
-        toggleEditMode(ifAddingNewPlace)
-    }, [ifAddingNewPlace])
 
     const incrementTripDays = () => {
         let dayKey = `day${Object.keys(placesPlan).length + 1}`
@@ -80,44 +176,53 @@ const MapMainScreen = ({navigation, route}) => {
         setPlacesPlan(newPlacesPlan)
     }
 
+   // ref
+   const bottomSheetModalRef = useRef(null);
 
-  
-    const toggleEditMode = (ifAddingNewPlace) => {
-        if(ifFirstEnter) setIfFirstEnter(false)
-        if(!ifAddingNewPlace)
-        {
-            headerMarginTop.value = withTiming(-180, {duration : 300})
-            Keyboard.dismiss()
-            bottomListMarginBottom.value =  withTiming(0, {duration : 300})
-        }
-        else{
-            headerMarginTop.value = withTiming(0, {duration : 300})
-            if(!ifFirstEnter)   inputRef.current.focus()
-            bottomListMarginBottom.value =  withTiming(-240 - (placesPlan[`day${curDay}`].length) * 72, {duration : 300})
-        }
-        
-    }
-    
+ 
+   // callbacks
+   const handlePresentModalPress = useCallback(() => {
+     bottomSheetModalRef.current?.present();
+   }, []);
+   const handleDismissModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.dismiss();
+  }, []);
+   const handleSheetChanges = useCallback((index) => {
+     console.log('handleSheetChanges', index);
+     setViewMode(index === 0 ? 'title' : 'list')
+     setEditMode(index === 2 ? 'detailEdit':'locEdit')
+     //bottom sheet has been dismissed
+     //show header
+     if(index === -1)
+     {
+        handleShowHeader()
+     }
+   
+   }, []);
 
-    const toggleHeightOnFocus = () => {
-        height.value = withTiming(126, {duration : 300})
-    }
-    const toggleHeightOnBlur = () => {
-        height.value = withTiming(180, {duration : 300})
-    }
-
-    const handleAddingNewPlace = (day) => {
-        setIfAddingNewPlace(true)
-        setCurDay(day)
-    }
+   
 
     const handleCompleteAddingNewPlace = (place) => {
+        //Create unique Id with timeStamp
+        let placeWithTimeStamp = {
+            ...place,
+            timeId: place.place_id + Date.now()
+        }
+        
+        Keyboard.dismiss()
+        handleHideHeader()
         setInputText('')
         setSuggestions([])
-        setIfAddingNewPlace(false)
         let newPlacesPlan = {...placesPlan}
-        newPlacesPlan[`day${curDay}`] =  [...newPlacesPlan[`day${curDay}`], place];
+        newPlacesPlan[`day${curDay}`] =  [...newPlacesPlan[`day${curDay}`], placeWithTimeStamp];
         setPlacesPlan(newPlacesPlan)
+    }
+
+    const handleUpdatePlacesPlan = ( curDay, placesList )=>{
+        let newPlacesPlan = {...placesPlan}
+        newPlacesPlan[`day${curDay}`] = placesList
+        setPlacesPlan(newPlacesPlan)
+        console.log('update placesPlan successfully!')
     }
 
 
@@ -169,19 +274,7 @@ const MapMainScreen = ({navigation, route}) => {
   
 
 
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            height: height.value,
-            marginTop: headerMarginTop.value
-        };
-      });
-
-      const animatedBottomListStyle = useAnimatedStyle(() => {
-        return {
-            marginBottom: bottomListMarginBottom.value
-        };
-      });
-
+  
       const handleInputChange = (text) => {
         if(text.length === 0){
             setSuggestions([])
@@ -208,7 +301,50 @@ const MapMainScreen = ({navigation, route}) => {
         })
         setUserInfoFromUserList(user)
       }
+
+      const handleSaveOrUpdateRoadBook = () => {
+        if(roadBookId)
+        {
+            handleUpdateRoadBook(roadBookId, placesPlan)
+        }
+        else{
+            handleCreatingRoadBook()
+        }
+      }
     
+      const handleUpdateRoadBook = async (roadbookId, updatedPlacesPlan) => {
+        try {
+          if (!roadbookId || !updatedPlacesPlan) {
+            return alert('Invalid roadbook ID or places plan');
+          }
+      
+          // Get the current roadbook
+          const roadBookResponse = await API.graphql(graphqlOperation(queries.getRoadBook, { id: roadbookId }));
+          const currentRoadBook = roadBookResponse.data.getRoadBook;
+      
+          if (!currentRoadBook) {
+            return alert('Roadbook not found');
+          }
+      
+          // Update the RoadBook
+          const updatedRoadBookInput = {
+            id: roadbookId,
+            placesPlan: JSON.stringify(updatedPlacesPlan),
+            updatedAt: new Date().toISOString(),
+          };
+      
+          await API.graphql(graphqlOperation(mutations.updateRoadBook, { input: updatedRoadBookInput }));
+      
+          console.log('Roadbook updated successfully');
+          alert('Roadbook updated successfully');
+      
+          // Navigate back to the appropriate screen
+          navigation.replace('DrawerScreen');
+        } catch (error) {
+          console.error('Error updating RoadBook:', error);
+          Alert.alert('Error', 'Failed to update RoadBook. Please try again later.');
+        }
+      };
     
      const handleCreatingRoadBook = async ()=>{
         
@@ -222,15 +358,19 @@ const MapMainScreen = ({navigation, route}) => {
                 placesPlan: JSON.stringify(placesPlan),
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
+                originalLocation:JSON.stringify({
+                    city:city,
+                    location:location
+                })
                 };
                 const createRoadBookResponse = await API.graphql(graphqlOperation(createRoadBook, {input: roadBookInput}));
                 let roadBook_id = createRoadBookResponse.data.createRoadBook.id
                 let roadBookItem = createRoadBookResponse.data.createRoadBook
 
-                let roadBookItemParsed = {
-                    ...roadBookItem,
-                    placesPlan:JSON.parse(roadBookItem.placesPlan)
-                }
+                // let roadBookItemParsed = {
+                //     ...roadBookItem,
+                //     placesPlan:JSON.parse(roadBookItem.placesPlan)
+                // }
                 // insert roadBook_id to user (roadBookList) in userList
                 // user.data?.getUser?.roadBookList
                 const oldUserInfo = userInfoFromUserList?.data?.getUser
@@ -248,10 +388,9 @@ const MapMainScreen = ({navigation, route}) => {
                   });
 
                   console.log('update successfully')
+                  alert('save roadbook completed')
 
-                    navigation.replace('RoadBookEdit', {
-                       roadBookItem:roadBookItemParsed
-                    })
+                    navigation.replace('DrawerScreen')
 
         } catch (error) {
             console.error('Error creating RoadBook:', error);
@@ -263,85 +402,188 @@ const MapMainScreen = ({navigation, route}) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-       <View className="flex-1  relative">
-        
-            <Animated.View style={animatedStyle} className="bg-white  px-5 flex-col shadow-lg z-20">
-            {
-                !isFocused ? (
-                    <View className="mt-12 pt-7 flex flex-row items-center">
-                <View style={{width:7, height:7, backgroundColor:"#FA541C"}} className=" rounded-full flex justify-center items-center mr-3" >
-                    <View style={{width:15, height:15, backgroundColor:"#FA541C",opacity:0.3}} className="rounded-full"  />
-                </View>
-                <Text style={{color:'#222833', fontSize:18}} className="font-semibold" >
-                    计划这场旅行从哪里开始?
-                </Text>
-            </View>
-                ):(
-                    <View className="mt-12  flex flex-row items-center" />
-                )
-            }
-            <View className="relative  flex-1  mt-4 flex-col justify-center">
-                {
-                    !isFocused && !inputText && (
-                        <TouchableWithoutFeedback onPress={()=>{
-                            setIsFocused(true)
-                            inputRef.current.focus()
-                            }}  >
-                            <View  className="absolute top-50  z-10 w-full flex justify-center items-center flex-row " style={{height:44, backgroundColor:'#F3F4F7', color:'#A8AFBC', borderRadius:12 }}>
-                                <Search color={"#A8AFBC"} size={20} className="mr-1" />
-                                <Text
-                                style={{color:"#A8AFBC"}}
-                                >输入一个地点</Text>
+    <BottomSheetModalProvider>
+     <View className=" flex-1  relative">
+         <SlidingModal incrementTripDays={incrementTripDays} setPlacesPlan={setPlacesPlan} placesPlan={placesPlan} modalVisible={modalVisible}  setModalVisible={setModalVisible} />
+         <View  style={{
+                height:70,
+                top:46
+            }} className="flex-row items-center  absolute z-40 w-full  px-4 ">
+                    <TouchableOpacity
+                        onPress={()=>{
+                            navigation.goBack()
+                        }}
+                    >
+                    <ChevronLeft  size={24} color={'#1D2129'} />
+                    </TouchableOpacity>
+                    {
+                        (!isFocused && !hasNonEmptyArray(placesPlan) ) ? (
+                            <View className="flex-row items-center ml-4">
+                        <View style={{width:7, height:7, backgroundColor:"#FA541C"}} className=" rounded-full flex justify-center items-center mr-3" >
+                                <View style={{width:15, height:15, backgroundColor:"#FA541C",opacity:0.3}} className="rounded-full"  />
                             </View>
-                        </TouchableWithoutFeedback>
-                    )
-                }
-                <TextInput className="pl-4" 
-                ref={inputRef}
-                value={inputText}
-                onChangeText={handleInputChange}
-                onFocus={()=>{
-                    setIsFocused(true)  
-                    toggleHeightOnFocus()
-                }}
-                onBlur={()=>{
-                    setIsFocused(false) 
-                    toggleHeightOnBlur()
-                }}
-                style={{height:44, backgroundColor:'#F3F4F7', color:'#A8AFBC', borderRadius:12, color:'#000' }}  />
+                        <Text
+                            style={{
+                                fontSize:18,
+                                color:'#222833'
+                            }}
+                        >计划这场旅行从哪里开始？</Text>
+                    </View>
+                        ):(
+                            <View className=" flex-1 h-full flex justify-center items-center">
+                                <PlacesInputTab editMode={editMode} setEditMode={setEditMode} />
+                            </View>
+                        )
+                    }
+                    <TouchableOpacity
+                                className="ml-auto "
+
+                        onPress={()=>{
+                            handleSaveOrUpdateRoadBook()
+                        }}
+                    >
+                        <CircleCheck    size={24} color={'#222833'} />
+
+                    </TouchableOpacity>
+        </View>
+
+        {/* Header Input Area  */}
+        <Animated.View style={[{
+            paddingTop:46,
+            height:178,
+        }, animatedStyle]} className=" bg-white px-4 pb-4 flex-col justify-between shadow-md z-20" >
+            
+            <View className="mt-auto">
+                {
+                        !isFocused &&  (
+                            <TouchableWithoutFeedback onPress={()=>{
+                                setIsFocused(true)
+                                inputRef.current.focus()
+                                }}  >
+                                <View  className="absolute top-50  z-10 w-full flex justify-center items-center flex-row " style={{height:44, backgroundColor:'#F3F4F7', color:'#A8AFBC', borderRadius:12 }}>
+                                    <Search color={"#A8AFBC"} size={20} className="mr-1" />
+                                    <Text
+                                    style={{color:"#A8AFBC"}}
+                                    >输入一个地点</Text>
+                                </View>
+                            </TouchableWithoutFeedback>
+                        )
+                    }
+                <TextInput className="pl-4 " 
+                    ref={inputRef}
+                    value={inputText}
+                    onChangeText={handleInputChange}
+                    onFocus={()=>{
+                        setIsFocused(true)  
+                    }}
+                    onBlur={()=>{
+                        setIsFocused(false) 
+                    }}
+                    style={{height:44, backgroundColor:'#F3F4F7', color:'#A8AFBC', borderRadius:12, color:'#000' }}  />
             </View>
         </Animated.View>
 
-            {/* INTERACTIVE MAP  */}
-            <View className="   flex-1 bg-gray-200 flex justify-center relative items-center">
-                {
-                    (suggestions.length > 0 && isFocused && ifAddingNewPlace && inputText) && (
-                        <View style={{ maxHeight:216 }} className="z-10 shadow-md w-full absolute top-0">
-                        <View className="px-7 py-3" style={{ backgroundColor:'#fff'}}>
+         {/* INTERACTIVE MAP  */}
+         <TouchableWithoutFeedback 
+         onPress={Keyboard.dismiss}
+         className=" flex-1">
+            <View className=" flex-1 bg-gray-200 flex justify-center relative items-center z-10  ">
+            {
+                    (suggestions.length > 0 && isFocused  && inputText) && (
+                        <View 
+                        style={{ height:216 ,
+                            backgroundColor:'#fff'
+                        }} className=" py-3 z-20  w-full absolute top-0  overflow-scroll shadow-md">
+                            <ScrollView keyboardShouldPersistTaps="always" className='px-7'>
                             {
-                                suggestions.slice(0,5).map((prediction,index)=> (
+                                suggestions.map((prediction,index)=> (
                                     <PlacesSuggestionItem handleCompleteAddingNewPlace={handleCompleteAddingNewPlace}  key={`${prediction.place_id}-${index}`} prediction={prediction} />
                                 ))
                             }
-                        </View>
+                            </ScrollView>
                     </View>
                     )
                 }
                <MapComponent location={location} placesPlan={placesPlan} curDay={curDay} />
             </View>
-
-          
-            <Animated.View style={animatedBottomListStyle} className=" mt-auto">
-                <PlacesPlanList handleCreatingRoadBook={handleCreatingRoadBook} 
-                incrementTripDays={incrementTripDays} curDay={curDay} placesPlan={placesPlan}
-                 handleAddingNewPlace={handleAddingNewPlace} setCurDay={setCurDay} />
-            </Animated.View>
-           
-       </View>
-    </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
+        {/* bottom modalsheet for placeslist  */}
+        <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+        enablePanDownToClose={false}
+        enableContentPanningGesture={!ifDraging}
+      >
+        <BottomSheetView 
+        style={styles.contentContainer}>
+            <View className=" flex-1 w-full ">
+             {
+                viewMode === 'list' ? (
+                    <PlacesPlanList
+                    setModalVisible={setModalVisible}
+                    placesPlan={placesPlan}
+                    handleUpdatePlacesPlan={handleUpdatePlacesPlan}
+                    setIfDraging={setIfDraging}
+                        contentHeight={contentHeight}
+                        roadBookItem={{
+                            placesPlan:placesPlan
+                        }}
+                        curDay={curDay}
+                        setCurDay={setCurDay}
+                        placesList={placesPlan[`day${curDay}`]}
+                        handleShowHeader={handleShowHeader}
+                        />
+                ):(
+                    <View 
+                    style={{
+                        height:102
+                    }}
+                        className=" flex  px-6  flex-row justify-between items-center"
+                    >
+                        <Text 
+                        style={{
+                            fontSize:16,
+                            color:"#4D5561"
+                        }}
+                        className="font-semibold"
+                        >{roadbookName}</Text>
+                        <Text
+                            className="font-semibold"
+                            style={{
+                                fontSize:12,
+                                color:"#ADB5C3"
+                            }}
+                        >
+                            {countPlanDays(placesPlan).tripDays}天 | {countPlanDays(placesPlan).placesCount}个活动点
+                        </Text>
+                    </View>
+                )
+             }
+            </View>
+        </BottomSheetView>
+      </BottomSheetModal>
+            
+    </View>
+  </BottomSheetModalProvider>
+  </TouchableWithoutFeedback>
   )
 }
 
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 24,
+      justifyContent: 'center',
+      backgroundColor: 'grey',
+    },
+    contentContainer: {
+      flex: 1,
+      alignItems: 'center',
+    },
+  });
+  
 export default MapMainScreen
 
 

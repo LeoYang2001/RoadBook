@@ -1,11 +1,11 @@
 import { View, Text ,TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Plus } from 'lucide-react-native';
+import { List, Plus } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
 
-const DaysFilter = ({placesPlan, curDay, setCurDay, incrementTripDays, ifFinishedEditing}) => {
+const DaysFilter = ({placesPlan, curDay, setCurDay, openDaysIncrementModal, ifFinishedEditing}) => {
 
     const leftOffSet = useSharedValue( (curDay - 1) * 45);
 
@@ -51,16 +51,16 @@ const DaysFilter = ({placesPlan, curDay, setCurDay, incrementTripDays, ifFinishe
         !ifFinishedEditing && (
             <TouchableOpacity 
             onPress={()=>{
-                incrementTripDays()
+                openDaysIncrementModal()
             }}
             style={{
-                width:40,
-                height:27,
+                width:51,
+                height:37,
                 borderRadius:6,
                 backgroundColor:'#F3F4F7'
             }} 
             className="flex justify-center items-center ">
-                <Plus size={20} color={'#ADB5C3'} />
+                <List size={23} color={'#4D5561'}  />
             </TouchableOpacity>
         )
        }

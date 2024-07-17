@@ -98,7 +98,6 @@ const ProfileSetupScreen = ({ navigation }) => {
         console.log(error)
       }
     }
-
       navigation.replace('DrawerScreen'); 
     } catch (error) {
       Alert.alert('Error', 'Failed to save profile');

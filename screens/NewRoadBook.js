@@ -58,7 +58,7 @@ const NewRoadBook = ({navigation}) => {
                 console.log(data?.results[0]?.location)
                 const location = data?.results[0]?.location
                 setisLoading(false)
-                navigation.replace('MapMainClone', {location:location, city:city, tripDays:tripDays, roadbookName:roadbookName})
+                navigation.replace('MapMain', {location:location, city:city, tripDays:tripDays, roadbookName:roadbookName})
             })
             .catch(error => {
                 alert(error)

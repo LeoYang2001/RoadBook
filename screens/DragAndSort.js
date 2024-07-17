@@ -1,44 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import DraggableFlatList, { NestableDraggableFlatList, NestableScrollContainer, ScaleDecorator } from "react-native-draggable-flatlist";
+import * as Haptics from 'expo-haptics';
 
 
-const initialData = [
-    {
-        id:1,
-        label:'1',
-        backgroundColor:'red'
-    },
-    {
-        id:2,
-        label:'2',
-        backgroundColor:'green'
-    },
-    {
-        id:3,
-        label:'3',
-        backgroundColor:'blue'
-    },
-    {
-        id:4,
-        label:'4',
-        backgroundColor:'rgb(255,134,122)'
-    },
-    {
-        id:5,
-        label:'5',
-        backgroundColor:'#ffd110'
-    }
-]
+
 
 export default function DragAndSort({
     setIfDraging,
     placesList,
     curDay,
-    handleShowHeader
+    handleShowHeader,
+    handleUpdatePlacesPlan
 
 }) {
   const [data, setData] = useState(placesList);
+  console.log(placesList)
   const [ifShowLeftBar, setIfShowLeftBar] = useState(true)
 
   const dragScrollRef = useRef(null)
@@ -51,6 +28,7 @@ export default function DragAndSort({
       <ScaleDecorator>
         <TouchableOpacity
           onLongPress={()=>{
+            Haptics.selectionAsync()
             setIfDraging(true)
             setIfShowLeftBar(false)
             drag()
@@ -93,8 +71,7 @@ export default function DragAndSort({
     <NestableScrollContainer
     ref={dragScrollRef}
     onContentSizeChange={()=>{
-        
-        console.log(dragScrollRef?.current.scrollToEnd())
+        dragScrollRef?.current.scrollToEnd()
     }}
     className="flex-1  px-4  ">
         <NestableDraggableFlatList
@@ -104,6 +81,7 @@ export default function DragAndSort({
             setData(data)
             setIfDraging(false)
             setIfShowLeftBar(true)
+            handleUpdatePlacesPlan(curDay, placesList=data)
             
         }}
         keyExtractor={(item) => item.timeId}

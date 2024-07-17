@@ -89,10 +89,11 @@ const MainScreen = ({navigation}) => {
         }
         setUser(userInfo)
         const userId = userInfo.attributes.sub
-
-         // Step 2: Fetch the user's roadBookList
+         // Step 2: Fetch the user's roadBookList 
 
         const userResponse = await API.graphql(graphqlOperation(getUser, {id : userId}))
+        console.log(userResponse)
+
         const userRoadBookList = userResponse.data.getUser.roadBookList
 
         if (!userRoadBookList || userRoadBookList.length === 0) {
@@ -109,9 +110,18 @@ const MainScreen = ({navigation}) => {
 
  
   const handleRoadBookEdit = (roadBookItem) => {
-    navigation.navigate('RoadBookEdit', {
-      roadBookItem:roadBookItem
-  })
+   let roadBookId = roadBookItem.id
+   let originalLocation = roadBookItem.originalLocation
+    let {city, location } = JSON.parse(originalLocation)
+    let roadbookName = roadBookItem.name
+    let placesPlan = roadBookItem.placesPlan
+    navigation.navigate('MapMain',{
+        location,
+        city,
+        roadbookName,
+        id: roadBookId,
+        placesPlan
+    })
   }
 
   const handleRoadBookDelete = async(roadBookItem) => {

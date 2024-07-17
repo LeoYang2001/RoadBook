@@ -25,3 +25,17 @@ export const hasNonEmptyArray = (obj) => {
     // If no non-empty array is found, return false
     return false;
   }
+  
+ export const transformToDailyPlacesArray = (data) => {
+    return Object.keys(data).map((day) => ({
+      dailyPlacesList: data[day],
+      id:day + '-' + new Date()
+    }));
+  };
+
+  export const transformToDailyPlacesObject = (dataArray) => {
+    return dataArray.reduce((acc, current, index) => {
+      acc[`day${index + 1}`] = current.dailyPlacesList;
+      return acc;
+    }, {});
+  };

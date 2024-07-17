@@ -2,5 +2,10 @@
   "AppSyncApiName": "roadbook",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false,
-  "AuthModeLastUpdated": "2024-07-09T17:43:12.526Z"
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authroadbooka1e7e0bb",
+      "Outputs.UserPoolId"
+    ]
+  }
 }

@@ -111,7 +111,7 @@ const MapWindow = ({ placesWithGeometry, location, ifDirections, CustomMarker })
                     <Polyline
                         coordinates={directions}
                         strokeWidth={4}
-                        strokeColor={'#FA541C'}
+                        strokeColor={'#4C545F'}
                     />
                 )}
                 {placesWithGeometry.map((placeItem, index) => (
@@ -128,7 +128,7 @@ const MapWindow = ({ placesWithGeometry, location, ifDirections, CustomMarker })
                             setSelectedMarkerId(placeItem?.place_id);
                         }}
                     >
-                        <CustomMarker selectedMarkerId={selectedMarkerId} setSelectedMarkerId={setSelectedMarkerId} placeItem={placeItem} />
+                        <CustomMarker index={index} selectedMarkerId={selectedMarkerId} setSelectedMarkerId={setSelectedMarkerId} placeItem={placeItem} />
                         <Callout>
                             <View style={{ width: 200 }}>
                                 <Text numberOfLines={1} style={{ fontSize: 16, fontWeight: 'bold' }}>{placeItem.main_text}</Text>

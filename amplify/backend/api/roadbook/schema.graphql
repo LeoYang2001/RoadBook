@@ -3,18 +3,19 @@
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
 
-type User @model {
+type User @model @auth(rules: [{ allow: owner }]) {
   id: ID!
   username: String!
-  email: String!
-  createdAt: AWSDateTime!
-  roadBookList: [ID]
+  email: String!  @auth(rules: [{ allow: owner }])
+  roadBookList: [String]
+  createdAt:String!
 }
 
-type RoadBook @model {
+type RoadBook @model @auth(rules: [{ allow: owner }]) {
   id: ID!
   name: String!
   placesPlan: AWSJSON
-  createdAt: AWSDateTime
-  updatedAt: AWSDateTime
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  originalLocation: AWSJSON
 }

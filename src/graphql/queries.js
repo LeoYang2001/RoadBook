@@ -7,9 +7,10 @@ export const getUser = /* GraphQL */ `
       id
       username
       email
-      createdAt
       roadBookList
+      createdAt
       updatedAt
+      owner
       __typename
     }
   }
@@ -25,9 +26,10 @@ export const listUsers = /* GraphQL */ `
         id
         username
         email
-        createdAt
         roadBookList
+        createdAt
         updatedAt
+        owner
         __typename
       }
       nextToken
@@ -43,6 +45,8 @@ export const getRoadBook = /* GraphQL */ `
       placesPlan
       createdAt
       updatedAt
+      originalLocation
+      owner
       __typename
     }
   }
@@ -60,6 +64,8 @@ export const listRoadBooks = /* GraphQL */ `
         placesPlan
         createdAt
         updatedAt
+        originalLocation
+        owner
         __typename
       }
       nextToken

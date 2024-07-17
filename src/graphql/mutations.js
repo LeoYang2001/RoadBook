@@ -10,9 +10,10 @@ export const createUser = /* GraphQL */ `
       id
       username
       email
-      createdAt
       roadBookList
+      createdAt
       updatedAt
+      owner
       __typename
     }
   }
@@ -26,9 +27,10 @@ export const updateUser = /* GraphQL */ `
       id
       username
       email
-      createdAt
       roadBookList
+      createdAt
       updatedAt
+      owner
       __typename
     }
   }
@@ -42,9 +44,10 @@ export const deleteUser = /* GraphQL */ `
       id
       username
       email
-      createdAt
       roadBookList
+      createdAt
       updatedAt
+      owner
       __typename
     }
   }
@@ -60,6 +63,8 @@ export const createRoadBook = /* GraphQL */ `
       placesPlan
       createdAt
       updatedAt
+      originalLocation
+      owner
       __typename
     }
   }
@@ -75,6 +80,8 @@ export const updateRoadBook = /* GraphQL */ `
       placesPlan
       createdAt
       updatedAt
+      originalLocation
+      owner
       __typename
     }
   }
@@ -90,6 +97,8 @@ export const deleteRoadBook = /* GraphQL */ `
       placesPlan
       createdAt
       updatedAt
+      originalLocation
+      owner
       __typename
     }
   }

@@ -32,7 +32,7 @@ const MapComponent = ({placesPlan, curDay, location}) => {
 
   return (
     <>
-        <MapWindow CustomMarker={CustomMarker} location={location} placesWithGeometry={placesWithGeometry} ifDirections={false} />
+        <MapWindow CustomMarker={CustomMarker} location={location} placesWithGeometry={placesWithGeometry} ifDirections={true} />
     </>
   )
 }

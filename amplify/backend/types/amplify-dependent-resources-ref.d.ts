@@ -2,8 +2,7 @@ export type AmplifyDependentResourcesAttributes = {
   "api": {
     "roadbook": {
       "GraphQLAPIEndpointOutput": "string",
-      "GraphQLAPIIdOutput": "string",
-      "GraphQLAPIKeyOutput": "string"
+      "GraphQLAPIIdOutput": "string"
     }
   },
   "auth": {

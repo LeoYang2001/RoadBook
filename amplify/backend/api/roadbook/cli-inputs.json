@@ -4,12 +4,8 @@
     "apiName": "roadbook",
     "serviceName": "AppSync",
     "defaultAuthType": {
-      "mode": "API_KEY",
-      "expirationTime": 7,
-      "apiKeyExpirationDate": "2024-07-16T18:05:14.882Z",
-      "keyDescription": ""
-    },
-    "conflictResolution": {},
-    "additionalAuthTypes": []
+      "mode": "AMAZON_COGNITO_USER_POOLS",
+      "cognitoUserPoolId": "authroadbooka1e7e0bb"
+    }
   }
 }
