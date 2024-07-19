@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 
-const PlacesInputTab = ({editMode ,setEditMode}) => {
+const PlacesInputTab = ({editMode ,setEditMode, handleHideHeader}) => {
 
     const tabLeft = useSharedValue(34);
 

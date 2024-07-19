@@ -154,6 +154,11 @@ const MainScreen = ({navigation}) => {
     navigation.navigate('NewRoadBook')
   }
 
+  const createAiRoadBook = ()=>{
+    Haptics.selectionAsync()
+    navigation.navigate('AiCreation')
+  }
+
 
   if (!user) {
     return null; 
@@ -178,7 +183,7 @@ const MainScreen = ({navigation}) => {
                 </Text>
             </View>
             <TouchableOpacity 
-            onPress={createNewRoadBook}
+            onPress={createAiRoadBook}
             style={{width:67, height:30, borderRadius:31, backgroundColor:'#222833'}} className=" flex-row justify-center items-center ">
               <Image
                 source={require('../assets/magicStick.png')}
@@ -216,8 +221,10 @@ const MainScreen = ({navigation}) => {
               </Text>
             </View>
            </TouchableOpacity>
-           <TouchableOpacity style={{height:174, width:207, borderRadius:12}} className="shadow-lg  bg-white">
-            <Text>demo</Text>
+           <TouchableOpacity 
+            onPress={createNewRoadBook}
+           style={{height:174, width:207, borderRadius:12}} className="shadow-lg  bg-white">
+            <Text>manual creation</Text>
            </TouchableOpacity>
          </ScrollView>
          </View>

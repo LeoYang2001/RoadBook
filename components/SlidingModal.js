@@ -7,23 +7,6 @@ import * as Haptics from 'expo-haptics';
 import { transformToDailyPlacesArray, transformToDailyPlacesObject } from '../utility';
 
 
-// const initialData = [
-//     {
-//         id:'6723acd45f62f7d771455b0c1721221336902',
-//         name:'day1',
-//         placesList:['demo','demo']
-//     },
-//     {
-//         id:'6723acd45f62f7d771455b0c1721221336231',
-//         name:'day2',
-//         placesList:['demo','demo']
-//     },
-//     {
-//         id:'6723acd45f62f7d771455b0c1721221331111',
-//         name:'day3',
-//         placesList:['demo','demo']
-//     }
-// ]
 
 const SlidingModal = ({modalVisible, setModalVisible, placesPlan, setPlacesPlan, incrementTripDays}) => {
 
@@ -34,15 +17,19 @@ const SlidingModal = ({modalVisible, setModalVisible, placesPlan, setPlacesPlan,
   const [data, setData] = useState([]);
   
   useEffect(() => {
-    const placesPlan_array = transformToDailyPlacesArray(placesPlan)
+    const placesPlan_array = transformToDailyPlacesArray(placesPlan).sort((a, b) => {
+        // Extract the day number from the id
+        const dayA = parseInt(a.id.match(/day(\d+)/)[1]);
+        const dayB = parseInt(b.id.match(/day(\d+)/)[1]);
+        
+        return dayA - dayB;
+      });
     setData(placesPlan_array)
+
   }, [placesPlan])
   
 
-  const handleUpdatePlacesPlan = (newData) => {
-    console.log(newData)
-  }
-
+  
   const dragScrollRef = useRef(null)
 
   const renderItem = ({item, drag, isActive}) => {
@@ -169,9 +156,7 @@ const SlidingModal = ({modalVisible, setModalVisible, placesPlan, setPlacesPlan,
             <NestableDraggableFlatList
                 data={data}
                 onDragEnd={({ data }) => {
-                    console.log(data)
                     let newPlacesPlan = transformToDailyPlacesObject(data)
-                    console.log(newPlacesPlan)
                     setPlacesPlan(newPlacesPlan)
                 }}
                 keyExtractor={(item) => item.id}

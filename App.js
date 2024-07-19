@@ -37,7 +37,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
          <NavigationContainer >
-           <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="AiCreation">
+           <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName="Welcome">
               <Stack.Screen name="Welcome" component={WelcomeScreen}/>
               <Stack.Screen name="SignIn" component={SignInScreen}/>
               <Stack.Screen name="SignUp" component={SignUpScreen}/>

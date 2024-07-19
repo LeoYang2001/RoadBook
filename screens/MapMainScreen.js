@@ -15,7 +15,7 @@ import {
   } from '@gorhom/bottom-sheet';
 import * as mutations from '../src/graphql/mutations';
 import PlacesInputTab from '../components/PlacesInputTab';
-import { countPlanDays, hasNonEmptyArray } from '../utility';
+import { countPlanDays, handleSuggestionsResponse, hasNonEmptyArray } from '../utility';
 import SlidingModal from '../components/SlidingModal';
 
 const BAIDU_MAPS_APIKEY = process.env.EXPO_PUBLIC_BAIDU_MAPS_APIKEY
@@ -54,8 +54,7 @@ const MapMainScreen = ({navigation, route}) => {
         const [roadBookId, setRoadBookId] = useState(null)
 
     useEffect(() => {
-        const {location, city, tripDays,roadbookName, id, placesPlan} = route.params
-        console.log({location, city, tripDays,roadbookName, id})
+        const {location, city, tripDays,roadbookName, id, placesPlan, ifGeneratedByAi} = route.params
         setLocation(location)
         setCity(city)
         setRoadbookName(roadbookName)
@@ -64,11 +63,19 @@ const MapMainScreen = ({navigation, route}) => {
         if(id)
         {
             setPlacesPlan(placesPlan)
+            console.log(placesPlan)
             setRoadBookId(id)
             handleHideHeader()
         }
         else{
-            setPlacesPlan(initializePlacesPlan(tripDays))
+            if(ifGeneratedByAi)
+            {
+                setPlacesPlan(placesPlan)
+                handleHideHeader()
+            }
+            else{
+                setPlacesPlan(initializePlacesPlan(tripDays))
+            }
         }
       
     }, [navigation])
@@ -100,6 +107,11 @@ const MapMainScreen = ({navigation, route}) => {
 
     useEffect(() => {
         headerMarginTop.value = withTiming(ifHeaderShown ? 0 : -178, {duration : 200})
+        setInputText('')
+        if(!ifHeaderShown)
+        {
+            Keyboard.dismiss()
+        }
     }, [ifHeaderShown])
 
     useEffect(() => {
@@ -129,6 +141,14 @@ const MapMainScreen = ({navigation, route}) => {
         countPlanDays(placesPlan)
       
     }, [placesPlan,curDay])
+
+    useEffect(() => {
+      if(!isFocused)
+      {
+        Keyboard.dismiss()
+      }
+    }, [isFocused])
+    
     
 
     
@@ -147,8 +167,11 @@ const MapMainScreen = ({navigation, route}) => {
 
     //hide header and show placesList modal
     const handleHideHeader = () => {
-        setIfHeaderShown(false)
-        handlePresentModalPress()
+        if(ifHeaderShown)
+        {
+            setIfHeaderShown(false)
+            handlePresentModalPress()
+        }
     }
     
 
@@ -188,7 +211,6 @@ const MapMainScreen = ({navigation, route}) => {
     bottomSheetModalRef.current?.dismiss();
   }, []);
    const handleSheetChanges = useCallback((index) => {
-     console.log('handleSheetChanges', index);
      setViewMode(index === 0 ? 'title' : 'list')
      setEditMode(index === 2 ? 'detailEdit':'locEdit')
      //bottom sheet has been dismissed
@@ -255,22 +277,7 @@ const MapMainScreen = ({navigation, route}) => {
         }
     };
 
-    const handleSuggestionsResponse = (predictions) => {
-        if (!predictions || !predictions.length) {
-            return [];
-        }
-    
-        const filteredArr = predictions.map(prediction => ({
-            main_text: prediction.name,
-            detailed_name: prediction.address,
-            place_id: prediction.uid,
-            location: prediction.location
-        }));
-
-
-        return filteredArr
-    }
-
+  
   
 
 
@@ -339,7 +346,7 @@ const MapMainScreen = ({navigation, route}) => {
           alert('Roadbook updated successfully');
       
           // Navigate back to the appropriate screen
-          navigation.replace('DrawerScreen');
+        //   navigation.replace('DrawerScreen');
         } catch (error) {
           console.error('Error updating RoadBook:', error);
           Alert.alert('Error', 'Failed to update RoadBook. Please try again later.');
@@ -390,7 +397,7 @@ const MapMainScreen = ({navigation, route}) => {
                   console.log('update successfully')
                   alert('save roadbook completed')
 
-                    navigation.replace('DrawerScreen')
+                    // navigation.replace('DrawerScreen')
 
         } catch (error) {
             console.error('Error creating RoadBook:', error);
@@ -412,6 +419,7 @@ const MapMainScreen = ({navigation, route}) => {
                     <TouchableOpacity
                         onPress={()=>{
                             navigation.goBack()
+                            
                         }}
                     >
                     <ChevronLeft  size={24} color={'#1D2129'} />
@@ -431,7 +439,7 @@ const MapMainScreen = ({navigation, route}) => {
                     </View>
                         ):(
                             <View className=" flex-1 h-full flex justify-center items-center">
-                                <PlacesInputTab editMode={editMode} setEditMode={setEditMode} />
+                                <PlacesInputTab handleHideHeader={handleHideHeader} editMode={editMode} setEditMode={setEditMode} />
                             </View>
                         )
                     }
@@ -488,6 +496,18 @@ const MapMainScreen = ({navigation, route}) => {
          onPress={Keyboard.dismiss}
          className=" flex-1">
             <View className=" flex-1 bg-gray-200 flex justify-center relative items-center z-10  ">
+            {
+                ifHeaderShown && (
+                    <Pressable
+                        onPress={()=>{
+                            setIsFocused(false)
+                            handleHideHeader()
+                        }}
+                        className=" absolute z-10 w-full h-full bg-transparent"
+                    />
+
+                )
+            }
             {
                     (suggestions.length > 0 && isFocused  && inputText) && (
                         <View 

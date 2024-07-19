@@ -43,3 +43,10 @@ export const pageLayout = {
     paddingHorizontal : 18,
     paddingVertical : 20
 }
+
+export const travelStyleList = [
+  '喜欢完全摆烂的旅行方式',
+  '喜欢较为休闲的旅行方式',
+  '喜欢较为充实的旅行方式',
+  '喜欢非常充实的旅行方式',
+]
