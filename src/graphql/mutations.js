@@ -13,7 +13,6 @@ export const createUser = /* GraphQL */ `
       roadBookList
       createdAt
       updatedAt
-      owner
       __typename
     }
   }
@@ -30,7 +29,6 @@ export const updateUser = /* GraphQL */ `
       roadBookList
       createdAt
       updatedAt
-      owner
       __typename
     }
   }
@@ -47,7 +45,6 @@ export const deleteUser = /* GraphQL */ `
       roadBookList
       createdAt
       updatedAt
-      owner
       __typename
     }
   }
@@ -64,7 +61,6 @@ export const createRoadBook = /* GraphQL */ `
       createdAt
       updatedAt
       originalLocation
-      owner
       __typename
     }
   }
@@ -81,7 +77,6 @@ export const updateRoadBook = /* GraphQL */ `
       createdAt
       updatedAt
       originalLocation
-      owner
       __typename
     }
   }
@@ -98,7 +93,6 @@ export const deleteRoadBook = /* GraphQL */ `
       createdAt
       updatedAt
       originalLocation
-      owner
       __typename
     }
   }

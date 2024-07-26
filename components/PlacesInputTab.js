@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 
-const PlacesInputTab = ({editMode ,setEditMode, handleHideHeader}) => {
+const PlacesInputTab = ({editMode ,setEditMode, handleHideHeader, ifHeaderShown}) => {
 
     const tabLeft = useSharedValue(34);
 
@@ -21,54 +21,70 @@ const PlacesInputTab = ({editMode ,setEditMode, handleHideHeader}) => {
 
   return (
     <View className="flex-row  relative">
-    <Animated.View 
-        style={[animatedStyle, {
-            position:"absolute",
-            height:2,
-            width:28,
-            borderRadius:1,
-            backgroundColor:'#FA541C',
-            bottom:0,
-        }]}
-    />
-      <TouchableOpacity
+  
+      {
+        ifHeaderShown ? (
+          <Text
+          style={{
+              fontSize:16,
+              color:'#222833'
+          }}
+          >
+          添加标记点
+      </Text>
+        ):(
+          <>
+            <Animated.View 
+              style={[animatedStyle, {
+                  position:"absolute",
+                  height:2,
+                  width:28,
+                  borderRadius:1,
+                  backgroundColor:'#FA541C',
+                  bottom:0,
+              }]}
+          />
+              <TouchableOpacity
 
-        onPress={()=>{
-            setEditMode('locEdit')
-        }}
+              onPress={()=>{
+                  setEditMode('locEdit')
+              }}
 
-        className="flex justify-center items-center py-3"
-        style={{
-            width:96
-        }}
-      >
-         <Text
-            style={{
-                fontSize:16,
-                color:editMode === 'locEdit' ? '#FA541C':'#222833'
-            }}
-            >
-            线路规划
-         </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-         onPress={()=>{
-            setEditMode('detailEdit')
-        }}
-        className="flex justify-center items-center  py-2"
-        style={{
-            width:96
-        }}
-      >
-         <Text
-            style={{
-                fontSize:16,
-                 color:editMode === 'detailEdit' ? '#FA541C':'#222833'
-            }}
-            >
-            信息标记
-         </Text>
-      </TouchableOpacity>
+              className="flex justify-center items-center py-3"
+              style={{
+                  width:96
+              }}
+              >
+              <Text
+                  style={{
+                      fontSize:16,
+                      color:editMode === 'locEdit' ? '#FA541C':'#222833'
+                  }}
+                  >
+                  线路规划
+              </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+              onPress={()=>{
+                  setEditMode('detailEdit')
+              }}
+              className="flex justify-center items-center  py-2"
+              style={{
+                  width:96
+              }}
+              >
+              <Text
+                  style={{
+                      fontSize:16,
+                      color:editMode === 'detailEdit' ? '#FA541C':'#222833'
+                  }}
+                  >
+                  信息标记
+              </Text>
+              </TouchableOpacity>
+          </>
+        )
+      }
     </View>
   )
 }

@@ -95,7 +95,7 @@ const ProfileSetupScreen = ({ navigation }) => {
         await API.graphql(graphqlOperation(createUser, { input: userDetails }));
         console.log('user created successfully')
       } catch (error) {
-        console.log(error)
+        console.error('Error inserting user to user list', error)
       }
     }
       navigation.replace('DrawerScreen'); 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, Button, Image, SafeAreaView, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { pageLayout, themeColors } from '../constant';
@@ -8,6 +8,7 @@ import * as Haptics from 'expo-haptics';
 import { getRoadBook, getUser } from '../src/graphql/queries';
 import * as subscriptions from '../src/graphql/subscriptions';
 import { deleteRoadBook, updateUser } from '../src/graphql/mutations';
+import { useFocusEffect } from '@react-navigation/native'
 
 const selections = [
   {
@@ -42,6 +43,12 @@ const MainScreen = ({navigation}) => {
   useEffect(() => {
     fetchRoadBookList()
   }, []);
+
+  useFocusEffect(
+    useCallback(()=>{
+      fetchRoadBookList()
+    },[])
+  )
 
   useEffect(() => {
     const updateRoadBookList = API.graphql({query: subscriptions.onUpdateUser}).subscribe({

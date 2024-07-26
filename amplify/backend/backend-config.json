@@ -7,17 +7,24 @@
             "UserPoolId"
           ],
           "category": "auth",
-          "resourceName": "roadbooka1e7e0bb"
+          "resourceName": "roadbookbadb86d5"
         }
       ],
       "output": {
         "authConfig": {
-          "additionalAuthenticationProviders": [],
-          "defaultAuthentication": {
-            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
-            "userPoolConfig": {
-              "userPoolId": "authroadbooka1e7e0bb"
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "userPoolConfig": {
+                "userPoolId": "authroadbookbadb86d5"
+              }
             }
+          ],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 7
+            },
+            "authenticationType": "API_KEY"
           }
         }
       },
@@ -26,7 +33,7 @@
     }
   },
   "auth": {
-    "roadbooka1e7e0bb": {
+    "roadbookbadb86d5": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {

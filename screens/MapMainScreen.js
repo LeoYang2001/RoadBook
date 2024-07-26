@@ -300,13 +300,18 @@ const MapMainScreen = ({navigation, route}) => {
       };
 
       const fetchUserInfoFromUserList = async (uid) => {
-        const user = await API.graphql({
-          query: queries.getUser,
-          variables:{
-            id:uid
-          }
-        })
-        setUserInfoFromUserList(user)
+        console.log('fetchUserInfoFromUserList')
+        try {
+            const user = await API.graphql({
+                query: queries.getUser,
+                variables:{
+                  id:uid
+                }
+              })
+              setUserInfoFromUserList(user)
+        } catch (error) {
+            console.log(error)
+        }   
       }
 
       const handleSaveOrUpdateRoadBook = () => {
@@ -439,7 +444,7 @@ const MapMainScreen = ({navigation, route}) => {
                     </View>
                         ):(
                             <View className=" flex-1 h-full flex justify-center items-center">
-                                <PlacesInputTab handleHideHeader={handleHideHeader} editMode={editMode} setEditMode={setEditMode} />
+                                <PlacesInputTab ifHeaderShown={ifHeaderShown} handleHideHeader={handleHideHeader} editMode={editMode} setEditMode={setEditMode} />
                             </View>
                         )
                     }
@@ -538,50 +543,58 @@ const MapMainScreen = ({navigation, route}) => {
       >
         <BottomSheetView 
         style={styles.contentContainer}>
-            <View className=" flex-1 w-full ">
-             {
-                viewMode === 'list' ? (
-                    <PlacesPlanList
-                    setModalVisible={setModalVisible}
-                    placesPlan={placesPlan}
-                    handleUpdatePlacesPlan={handleUpdatePlacesPlan}
-                    setIfDraging={setIfDraging}
-                        contentHeight={contentHeight}
-                        roadBookItem={{
-                            placesPlan:placesPlan
-                        }}
-                        curDay={curDay}
-                        setCurDay={setCurDay}
-                        placesList={placesPlan[`day${curDay}`]}
-                        handleShowHeader={handleShowHeader}
-                        />
-                ):(
-                    <View 
-                    style={{
-                        height:102
-                    }}
-                        className=" flex  px-6  flex-row justify-between items-center"
-                    >
-                        <Text 
-                        style={{
-                            fontSize:16,
-                            color:"#4D5561"
-                        }}
-                        className="font-semibold"
-                        >{roadbookName}</Text>
-                        <Text
-                            className="font-semibold"
-                            style={{
-                                fontSize:12,
-                                color:"#ADB5C3"
-                            }}
-                        >
-                            {countPlanDays(placesPlan).tripDays}天 | {countPlanDays(placesPlan).placesCount}个活动点
-                        </Text>
+            {
+                editMode === 'detailEdit' ? (
+                    <View className=" flex-1 w-full ">
+                        <Text>detail</Text>
                     </View>
+                ):(
+                    <View className=" flex-1 w-full ">
+                            {
+                                viewMode === 'list' ? (
+                                    <PlacesPlanList
+                                    setModalVisible={setModalVisible}
+                                    placesPlan={placesPlan}
+                                    handleUpdatePlacesPlan={handleUpdatePlacesPlan}
+                                    setIfDraging={setIfDraging}
+                                        contentHeight={contentHeight}
+                                        roadBookItem={{
+                                            placesPlan:placesPlan
+                                        }}
+                                        curDay={curDay}
+                                        setCurDay={setCurDay}
+                                        placesList={placesPlan[`day${curDay}`]}
+                                        handleShowHeader={handleShowHeader}
+                                        />
+                                ):(
+                                    <View 
+                                    style={{
+                                        height:102
+                                    }}
+                                        className=" flex  px-6  flex-row justify-between items-center"
+                                    >
+                                        <Text 
+                                        style={{
+                                            fontSize:16,
+                                            color:"#4D5561"
+                                        }}
+                                        className="font-semibold"
+                                        >{roadbookName}</Text>
+                                        <Text
+                                            className="font-semibold"
+                                            style={{
+                                                fontSize:12,
+                                                color:"#ADB5C3"
+                                            }}
+                                        >
+                                            {countPlanDays(placesPlan).tripDays}天 | {countPlanDays(placesPlan).placesCount}个活动点
+                                        </Text>
+                                    </View>
+                                )
+                            }
+                            </View>
                 )
-             }
-            </View>
+            }
         </BottomSheetView>
       </BottomSheetModal>
             
